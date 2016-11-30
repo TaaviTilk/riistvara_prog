@@ -1,5 +1,5 @@
 # Build artefacts
-bin/*
+
 
 # astyle formatter preserved files
 *.orig
