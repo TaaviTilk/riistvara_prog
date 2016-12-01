@@ -1,7 +1,7 @@
 #include <avr/pgmspace.h>
 #ifndef _HMI_MSG_H_
 #define _HMI_MSG_H_
-#define STUD_NAME "Marek Öövel" /*jutumärkide vahele enda nimi*/
+#define STUD_NAME "Taavi Tilk" /*jutumärkide vahele enda nimi*/
 #define VER_LIBC "avr-libc version: %S\n"
 #define VER_FW "Version: %s built on: %S %S\n"
 #define GET_MONTH "Enter Month mane first letter >"
