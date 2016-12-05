@@ -3,13 +3,10 @@
 #include <string.h>
 #include <avr/io.h>
 #include <util/delay.h>
-
 #include "uart.h"
 #include "print_helper.h"
 #include "hmi_msg.h"
 #include "../lib/hd44780_111/hd44780.h"
-
-
 #define BLINK_DELAY_MS 100
 
 void main (void)
@@ -50,14 +47,12 @@ void main (void)
         lcd_goto(0x40);
 
         for (int i = 0; i < 6; i++) {
-
             if (!strncmp_P(&inBuf, (PGM_P)pgm_read_word(&nameMonth[i]), 1)) {
                 fprintf_P(stdout, (PGM_P)pgm_read_word(&nameMonth[i]));
                 fputc('\n', stdout);
                 lcd_puts_P((PGM_P)pgm_read_word(&nameMonth[i]));
                 lcd_putc(' ');
             }
-
         }
 
         for (int i = 0; i < 16; i++) {
