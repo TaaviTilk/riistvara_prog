@@ -5,6 +5,7 @@
 #define VER_LIBC "avr-libc version: %S\n"
 #define VER_FW "Version: %s built on: %S %S\n"
 #define GET_MONTH "Enter Month mane first letter >"
+#define UPTIME "Uptime: %lu s"
 
 const char string_1[] PROGMEM = "January";
 const char string_2[] PROGMEM = "February";
