@@ -16,13 +16,13 @@ const char string_5[] PROGMEM = "May";
 const char string_6[] PROGMEM = "June";
 
 PGM_P const nameMonth[] PROGMEM =
-			{
-			string_1,
-			string_2,
-			string_3,
-			string_4,
-			string_5,
-			string_6	
-			};
+            {
+            string_1,
+            string_2,
+            string_3,
+            string_4,
+            string_5,
+            string_6
+            };
 
 #endif /*_HMI_MSG_H_ endif on see*/

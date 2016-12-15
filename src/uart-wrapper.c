@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <stdio.h>
 #include "../lib/andygock_avr-uart/uart.h"
+#define UART_STATUS_MASK 0x00FF
 
 int uart0_putchar(char c, FILE *stream) /* 0 out function */
 {
@@ -31,5 +32,5 @@ int uart3_putchar(char c, FILE *stream) /* 3 out function */
 int uart0_getchar(FILE *stream)
 {
     (void) stream;
-    return uart0_getc() & 0xff;
+    return uart0_getc() & UART_STATUS_MASK;
 }

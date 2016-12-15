@@ -1,6 +1,7 @@
 #ifndef _UART_H_
 #define _UART_H_
 
+
 int uart0_putchar(char c, FILE *stream);
 int uart0_getchar(FILE *stream);
 
