@@ -1,7 +1,7 @@
 #include <avr/pgmspace.h>
 #ifndef _HMI_MSG_H_
 #define _HMI_MSG_H_
-#define STUD_NAME "Taavi Tilk" /*jutumärkide vahele enda nimi*/
+#define STUD_NAME "Marek Öövel"
 #define VER_FW "Version: %S built on: %S %S\n"
 #define VER_LIBC "avr-libc version: %S "
 #define VER_GCC "avr-gcc version: %S\n"
