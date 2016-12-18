@@ -62,6 +62,7 @@ static inline void print_algus()
     fprintf_P(stdout, PSTR(GET_MONTH));
 }
 
+
 static inline void search_month()
 {
     char inBuf = ' ';
