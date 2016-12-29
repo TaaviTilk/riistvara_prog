@@ -1,28 +1,14 @@
-#include <avr/pgmspace.h>
 #ifndef _HMI_MSG_H_
 #define _HMI_MSG_H_
+#include <avr/pgmspace.h>
 #define STUD_NAME "Taavi Tilk"
-#define VER_FW "Version: %S built on: %S %S\n"
-#define VER_LIBC "avr-libc version: %S "
-#define VER_GCC "avr-gcc version: %S\n"
+#define VER_LIBC "avr-libc version: "__AVR_LIBC_VERSION_STRING__
+#define VER_GCC "avr-gcc version:"__VERSION__
+#define VER_FW "Version: " GIT_DESCR "-built on: " __DATE__" "__TIME__
 #define GET_MONTH "Enter Month mane first letter >"
-#define UPTIME "Uptime: %lu s"
+#define UPTIME "Uptime: %lu s\n\r"
+#define CLI_HELP_MSG "Implemented commands:\n\r"
 
-const char string_1[] PROGMEM = "January";
-const char string_2[] PROGMEM = "February";
-const char string_3[] PROGMEM = "March";
-const char string_4[] PROGMEM = "April";
-const char string_5[] PROGMEM = "May";
-const char string_6[] PROGMEM = "June";
-
-PGM_P const nameMonth[] PROGMEM =
-            {
-            string_1,
-            string_2,
-            string_3,
-            string_4,
-            string_5,
-            string_6
-            };
+extern PGM_P const nameMonth[]; 
 
 #endif /*_HMI_MSG_H_ endif on see*/
