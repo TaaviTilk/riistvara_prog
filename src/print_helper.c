@@ -7,13 +7,15 @@ void print_ascii_tbl ()
 {
     uart0_puts("\n\r");
     char buffer[8];
-    
+
     for (char c = ' '; c <= '~'; c++) {
         if (!sprintf(buffer, "%c ", c)) {
             return;
         }
+
         uart0_puts(buffer);
     }
+
     uart0_puts("\n\r");
 }
 
@@ -21,6 +23,7 @@ void print_ascii_tbl ()
 void print_for_human (const unsigned char *array, const int len)
 {
     char buffer[8];
+
     if (len > 1) {
         for (int i = 0; i < len; i++) {
             if (array[i] >= ' ' && array[i] <= '~') {
@@ -32,9 +35,11 @@ void print_for_human (const unsigned char *array, const int len)
                     return;
                 }
             }
+
             uart0_puts(buffer);
         }
     }
+
     return;
 }
 

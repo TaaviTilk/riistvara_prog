@@ -90,6 +90,7 @@ void cli_print_ascii_tbls(const char *const *argv)
     for (unsigned char i = 0; i < sizeof(ascii); i++) {
         ascii[i] = i;
     }
+
     print_ascii_tbl();
     print_for_human (ascii, 128);
     uart0_puts("\n\r");
@@ -118,7 +119,8 @@ void cli_handle_month(const char *const *argv)
 void cli_print_cmd_error(void)
 {
     uart0_puts_p(PSTR("\n\r"));
-    uart0_puts_p(PSTR("Command not implemented.\n\r" "Use <help> to get help.\n\r"));
+    uart0_puts_p(PSTR("Command not implemented.\n\r"
+                      "Use <help> to get help.\n\r"));
 }
 
 
