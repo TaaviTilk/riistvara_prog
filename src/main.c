@@ -11,6 +11,7 @@
 #include "../lib/hd44780_111/hd44780.h"
 #include "../lib/andygock_avr-uart/uart.h"
 #include "../lib/helius_microrl/microrl.h"
+#include "../lib/andy_brown_memdebug/memdebug.h"
 #define BAUD 9600
 
 volatile uint32_t time;
