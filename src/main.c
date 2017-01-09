@@ -1,4 +1,21 @@
-﻿#include <stdio.h>
+﻿/*   This is Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
+ *
+ *   Copyright (C) 2017 Taavi Tilk
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#include <stdio.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
@@ -11,7 +28,7 @@
 #include "../lib/hd44780_111/hd44780.h"
 #include "../lib/andygock_avr-uart/uart.h"
 #include "../lib/helius_microrl/microrl.h"
-#include "../lib/andy_brown_memdebug/memdebug.h"
+
 #define BAUD 9600
 
 volatile uint32_t time;
@@ -147,7 +164,7 @@ static inline void read_rfid(void)
                 //turn led in pin 23 ON
                 PORTA |= _BV(PORTA1);
             } else {
-                lcd_puts("Access denied");
+                lcd_puts_P(PSTR("Access denied"));
                 PORTA &= ~_BV(PORTA1);
             }
 
@@ -156,6 +173,7 @@ static inline void read_rfid(void)
             }
         }
     }
+
     //clear old_card arrey every 2 sec (prevents LCD from constantly printing 1 and the same line)
     if (cur_time - start == 2) {
         old_card[0] = '\0';

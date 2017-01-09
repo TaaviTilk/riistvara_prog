@@ -1,3 +1,20 @@
+/*   This is Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
+ *
+ *   Copyright (C) 2017 Taavi Tilk
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -5,6 +22,7 @@
 #include "../lib/hd44780_111/hd44780.h"
 #include "../lib/andygock_avr-uart/uart.h"
 #include "../lib/matejx_avr_lib/mfrc522.h"
+#include "../lib/andy_brown_memdebug/memdebug.h"
 #include "hmi_msg.h"
 #include "print_helper.h"
 #include "cli_microrl.h"
@@ -12,29 +30,19 @@
 #define NUM_ELEMS(x)        (sizeof(x) / sizeof((x)[0]))
 #define UART_STATUS_MASK    0x00FF
 
+void cli_print_help(const char *const *argv);
+bool check_card_id(byte size, byte *uidByte);
+bool check_user_name(const char *argv);
+void cli_rfid_remove(const char *const *argv);
+void cli_rfid_add(const char *const *argv);
+void cli_rfid_print(void);
+void cli_rfid_read(const char *const *argv);
+void cli_print_ver(const char *const *argv);
+void cli_print_ascii_tbls(const char *const *argv);
+void cli_handle_month(const char *const *argv);
 void cli_print_cmd_error(void);
 void cli_print_cmd_arg_error(void);
-void cli_rfid_print(void);
-
-const char help_cmd[] PROGMEM = "help";
-const char help_help[] PROGMEM = "Get help";
-const char ver_cmd[] PROGMEM = "version";
-const char ver_help[] PROGMEM = "Print FW version";
-const char ascii_cmd[] PROGMEM = "ascii";
-const char ascii_help[] PROGMEM = "print ASCII tables";
-const char month_cmd[] PROGMEM = "month";
-const char month_help[] PROGMEM =
-    "Find matching month from lookup list. Usage: month <string>";
-const char rfid_read_cmd[] PROGMEM = "read";
-const char rfid_read_help[] PROGMEM = "Print RFID data and user(if it has one)";
-const char rfid_add_cmd[] PROGMEM = "add";
-const char rfid_add_help[] PROGMEM =
-    "Add card to LL and give it a user. Usage: add username <string>(MAX length 15 char)";
-const char rfid_remove_cmd[] PROGMEM = "remove";
-const char rfid_remove_help[] PROGMEM =
-    "Remove user/card from LL. Usage: remove username <string>";
-const char rfid_print_cmd[] PROGMEM = "print";
-const char rfid_print_help[] PROGMEM = "Print all used cards";
+void cli_mem_stat(const char *const *argv);
 
 
 const cli_cmd_t cli_cmds[] = {
@@ -45,7 +53,8 @@ const cli_cmd_t cli_cmds[] = {
     {rfid_read_cmd, rfid_read_help, cli_rfid_read, 0},
     {rfid_add_cmd, rfid_add_help, cli_rfid_add, 1},
     {rfid_print_cmd, rfid_print_help, cli_rfid_print, 0},
-    {rfid_remove_cmd, rfid_remove_help, cli_rfid_remove, 1}
+    {rfid_remove_cmd, rfid_remove_help, cli_rfid_remove, 1},
+    {rfid_mem_cmd, rfid_mem_help, cli_mem_stat, 0}
 };
 
 
@@ -103,23 +112,23 @@ bool check_card_id(byte size, byte *uidByte)
 
     while (current != NULL) {
         if (memcmp(uidByte, current->u_id, size) == 0) {
-            uart0_puts("The card ID: \"");
+            uart0_puts_p(PSTR(CARD_ID_MSG));
 
             for (byte i = 0; i < current->id_size; i++) {
-                sprintf(buffer, "%02X", current->u_id[i]);
+                sprintf_P(buffer, PSTR("%02X"), current->u_id[i]);
                 uart0_puts(buffer);
             }
 
-            sprintf(buffer, "\" is used, username: \"%s\"\n\r", current->user);
+            sprintf_P(buffer, PSTR(IS_USED_USER_MSG), current->user);
             uart0_puts(buffer);
-            uart0_puts("Please use an other card");
+            uart0_puts_p(PSTR(NEW_CARD_MSG));
             return 1;
         }
 
         current = current->next;
     }
 
-    uart0_puts("Card ID: OK");
+    uart0_puts_p(PSTR(CARD_OK_MSG));
     return 0;
 }
 
@@ -132,28 +141,28 @@ bool check_user_name(const char *argv)
     char buffer[30] = "";
 
     if (strlen(argv) > 15) {
-        uart0_puts("username has to be less than 15 char");
+        uart0_puts_p(PSTR(USER_TO_BIG_MSG));
         return 0;
     }
 
     while (current != NULL) {
         if (!strcmp(current->user, argv)) {
-            sprintf(buffer, "The username: \"%s\" is used, card ID: \"", current->user);
+            sprintf_P(buffer, PSTR(USER_AND_ID_MSG), current->user);
             uart0_puts(buffer);
 
             for (byte i = 0; i < current->id_size; i++) {
-                sprintf(buffer, "%02X", current->u_id[i]);
+                sprintf_P(buffer, PSTR("%02X"), current->u_id[i]);
                 uart0_puts(buffer);
             }
 
-            uart0_puts("\"\n\rPlease pick an other name.");
+            uart0_puts_p(PSTR(SAME_NAME_MSG));
             return 0;
         }
 
         current = current->next;
     }
 
-    uart0_puts("Username: OK");
+    uart0_puts_p(PSTR(USER_OK_MSG));
     return 1;
 }
 
@@ -161,7 +170,7 @@ bool check_user_name(const char *argv)
 //remove card and user from linked-list
 void cli_rfid_remove(const char *const *argv)
 {
-    uart0_puts("\n\r");
+    uart0_puts_p(PSTR("\n\r"));
     card_t *current = head_ptr;
     card_t *previous_user = NULL;
     char buffer[30] = "";
@@ -169,15 +178,15 @@ void cli_rfid_remove(const char *const *argv)
 
     while (current != NULL) {
         if (!strcmp(current->user, argv[1])) {
-            sprintf(buffer, "Removing user: \"%s\" with card ID: \"", current->user);
+            sprintf_P(buffer, PSTR(REMOV_USER_AND_ID_MSG), current->user);
             uart0_puts(buffer);
 
             for (byte i = 0; i < current->id_size; i++) {
-                sprintf(buffer, "%02X", current->u_id[i]);
+                sprintf_P(buffer, PSTR("%02X"), current->u_id[i]);
                 uart0_puts(buffer);
             }
 
-            sprintf(buffer, "\" from the linked-list\n\r");
+            sprintf_P(buffer, PSTR(REMOV_LIKEDL_MSG));
             uart0_puts(buffer);
             n = 1;
 
@@ -196,7 +205,7 @@ void cli_rfid_remove(const char *const *argv)
     }
 
     if (n == 0) {
-        sprintf(buffer, "No user with such name was found\n\r");
+        sprintf_P(buffer, PSTR(NO_USER_MSG));
         uart0_puts(buffer);
     }
 }
@@ -213,7 +222,7 @@ void cli_rfid_add(const char *const *argv)
         new_head = malloc(sizeof(card_t));
 
         if (new_head == NULL) {
-            uart0_puts_p(PSTR("\n\rLIST ERROR\n\r"));
+            uart0_puts_p(PSTR(LIST_ERROR_MSG));
         } else {
             PICC_ReadCardSerial(uid_ptr);
             //check if username or card ID is used
@@ -221,7 +230,7 @@ void cli_rfid_add(const char *const *argv)
             bool a = check_user_name(argv[1]);
 
             if (a && !b) {
-                uart0_puts_p(PSTR("\n\rAdding card to list\n\r"));
+                uart0_puts_p(PSTR(ADDING_CARD_MSG));
                 new_head->id_size = uid.size;
 
                 for (byte i = 0; i < uid.size; i++) {
@@ -231,18 +240,18 @@ void cli_rfid_add(const char *const *argv)
                 new_head->user = malloc(sizeof(argv[1]) + 1);
 
                 if (new_head->user == NULL) {
-                    uart0_puts_p(PSTR("\n\rUSER NAME ERROR\n\r"));
+                    uart0_puts_p(PSTR(NAME_ERROR_MSG));
                 } else {
                     new_head->user = strdup(argv[1]);
                     new_head->next = head_ptr;
                     head_ptr = new_head;
                 }
             } else {
-                uart0_puts("\n\r");
+                uart0_puts_p(PSTR("\n\r"));
             }
         }
     } else {
-        uart0_puts_p((PSTR("Unable to select card.\n\r")));
+        uart0_puts_p((PSTR(UNABLE_CARD_MSG)));
     }
 }
 
@@ -257,11 +266,11 @@ void cli_rfid_print(void)
 
     while (current != NULL) {
         n++;
-        sprintf(buffer, "%i. ", n);
+        sprintf_P(buffer, PSTR("%i. "), n);
         uart0_puts(buffer);
 
         for (byte i = 0; i < current->id_size; i++) {
-            sprintf(buffer, "%02X", current->u_id[i]);
+            sprintf_P(buffer, PSTR("%02X"), current->u_id[i]);
             uart0_puts(buffer);
         }
 
@@ -283,29 +292,29 @@ void cli_rfid_read(const char *const *argv)
     uart0_puts_p(PSTR("\n\r"));
 
     if (PICC_IsNewCardPresent()) {
-        uart0_puts("Card selected!\n\r");
+        uart0_puts_p(PSTR(CARD_SEL_MSG));
         PICC_ReadCardSerial(uid_ptr);
-        sprintf(buffer, "UID size: 0x%02X\n\r", uid.size);
+        sprintf_P(buffer, PSTR(UID_SIZE_MSG), uid.size);
         uart0_puts(buffer);
-        sprintf(buffer, "UID sak: 0x%02X\n\r", uid.sak);
+        sprintf_P(buffer, PSTR(UID_SAK_MSG), uid.sak);
         uart0_puts(buffer);
-        uart0_puts("Card UID: ");
+        uart0_puts_p(PSTR(CARD_ID_MSG));
 
         for (byte i = 0; i < uid.size; i++) {
-            sprintf(buffer, "%02X", uid.uidByte[i]);
+            sprintf_P(buffer, PSTR("%02X"), uid.uidByte[i]);
             uart0_puts(buffer);
         }
 
         const char *user = get_username(uid.uidByte);
 
         if (user != NULL) {
-            uart0_puts("\n\rUser:");
-            uart0_puts(user);
+            uart0_puts_p(PSTR(USER_MSG));
+            uart0_puts_p(user);
         }
 
         uart0_puts_p(PSTR("\n\r"));
     } else {
-        uart0_puts_p((PSTR("Unable to select card.\n\r")));
+        uart0_puts_p((PSTR(UNABLE_CARD_MSG)));
     }
 }
 
@@ -322,7 +331,7 @@ void cli_print_ver(const char *const *argv)
 void cli_print_ascii_tbls(const char *const *argv)
 {
     (void) argv;
-    print_ascii_tbl (stdout);
+    print_ascii_tbl(stdout);
     unsigned char ascii[128];
 
     for (unsigned char i = 0; i < sizeof(ascii); i++) {
@@ -330,15 +339,15 @@ void cli_print_ascii_tbls(const char *const *argv)
     }
 
     print_ascii_tbl();
-    print_for_human (ascii, 128);
-    uart0_puts("\n\r");
+    print_for_human(ascii, 128);
+    uart0_puts_p(PSTR("\n\r"));
 }
 
 
 void cli_handle_month(const char *const *argv)
 {
     (void) argv;
-    uart0_puts("\n\r");
+    uart0_puts_p(PSTR("\n\r"));
     lcd_clr(0x40, 16);
     lcd_goto(0x40);
 
@@ -346,7 +355,7 @@ void cli_handle_month(const char *const *argv)
         if (!strncmp_P(argv[1], (PGM_P)pgm_read_word(&nameMonth[i]),
                        strlen(argv[1]))) {
             uart0_puts_p((PGM_P)pgm_read_word(&nameMonth[i]));
-            uart0_puts("\n\r");
+            uart0_puts_p(PSTR("\n\r"));
             lcd_puts_P((PGM_P)pgm_read_word(&nameMonth[i]));
             lcd_goto(0x48);
         }
@@ -357,8 +366,7 @@ void cli_handle_month(const char *const *argv)
 void cli_print_cmd_error(void)
 {
     uart0_puts_p(PSTR("\n\r"));
-    uart0_puts_p(PSTR("Command not implemented.\n\r"
-                      "Use <help> to get help.\n\r"));
+    uart0_puts_p(PSTR(CMD_NOT_MSG));
 }
 
 
@@ -366,7 +374,7 @@ void cli_print_cmd_arg_error(void)
 {
     uart0_puts_p(PSTR("\n\r"));
     uart0_puts_p(
-        PSTR("To few or to many arguments for this command\n\rUse <help>\n\r"));
+        PSTR(FEW_OR_MANY_MSG));
 }
 
 
@@ -390,4 +398,42 @@ int cli_execute(int argc, const char *const *argv)
 
     cli_print_cmd_error();
     return 0;
+}
+
+
+void cli_mem_stat(const char *const *argv)
+{
+    (void) argv;
+    char buffer[128];
+    extern int __heap_start, *__brkval;
+    int v;
+    int space;
+    static int prev_space;
+    space = (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+    uart0_puts("\n\r");
+    uart0_puts_p(PSTR(HEAD_MSG));
+    sprintf_P(buffer, PSTR(USED_MSG), getMemoryUsed());
+    uart0_puts(buffer);
+    sprintf_P(buffer, PSTR(FREE_MSG), getFreeMemory());
+    uart0_puts(buffer);
+    uart0_puts_p(PSTR(HEAD2_MSG));
+    sprintf_P(buffer, PSTR(CURRENT_MSG), space);
+    uart0_puts(buffer);
+    sprintf_P(buffer, PSTR(PREV_MSG), prev_space);
+    uart0_puts(buffer);
+    sprintf_P(buffer, PSTR(CHANGE_MSG), space - prev_space);
+    uart0_puts(buffer);
+    uart0_puts_p(PSTR(HEAD3_MSG));
+    sprintf_P(buffer, PSTR(F_SIZE_MSG), getFreeListSize());
+    uart0_puts(buffer);
+    sprintf_P(buffer, PSTR(F_BLOCK_MSG), getNumberOfBlocksInFreeList());
+    uart0_puts(buffer);
+    sprintf_P(buffer, PSTR(F_LARG_MSG), getLargestBlockInFreeList());
+    uart0_puts(buffer);
+    sprintf_P(buffer, PSTR(F_LARG_BLOCK_MSG), getLargestAvailableMemoryBlock());
+    uart0_puts(buffer);
+    sprintf_P(buffer, PSTR(L_BLOCK_MSG), getLargestNonFreeListBlock());
+    uart0_puts(buffer);
+    uart0_puts("\n\r");
+    prev_space = space;
 }
