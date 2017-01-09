@@ -26,7 +26,7 @@ void print_ascii_tbl ()
     char buffer[8];
 
     for (char c = ' '; c <= '~'; c++) {
-        if (!sprintf_p(buffer, PSTR("%c "), c)) {
+        if (!sprintf_P(buffer, PSTR("%c "), c)) {
             return;
         }
 
