@@ -1,4 +1,4 @@
-/*   This is Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
+/*   This file is part of Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
  *
  *   Copyright (C) 2017 Taavi Tilk
  *
@@ -20,7 +20,7 @@
 
 #include <avr/pgmspace.h>
 
-#define LICENSE "RFID kaardilugeja.\r\n\
+#define LICENSE "RFID card reader .\r\n\
 Copyright (C) 2017 Taavi Tilk.\r\n\
 This program comes with ABSOLUTELY NO WARRANTY.\r\n"
 #define HELLO "Use backspace to delete entry and enter to confirm.\r\n\
@@ -37,29 +37,31 @@ Arrow key's and del do not work currently.\r\n"
 #define CLI_HELP_MSG "Implemented commands:\r\n"
 
 #define CARD_ID_MSG "The card ID: \""
-#define IS_USED_USER_MSG "\" is used, username: \"%s\"\n\r"
+#define IS_USED_USER_MSG "\" is used, username: \"%s\"\r\n"
 #define NEW_CARD_MSG "Please use an other card"
 #define CARD_OK_MSG "Card ID: OK"
 #define USER_TO_BIG_MSG "username has to be less than 15 char"
 #define USER_AND_ID_MSG "The username: \"%s\" is used, card ID: \""
-#define SAME_NAME_MSG "\"\n\rPlease pick an other name."
+#define SAME_NAME_MSG "\"\r\nPlease pick an other name."
 #define USER_OK_MSG "Username: OK"
 #define REMOV_USER_AND_ID_MSG "Removing user: \"%s\" with card ID: \""
-#define REMOV_LIKEDL_MSG "\" from the linked-list\n\r"
-#define NO_USER_MSG "No user with such name was found\n\r"
-#define LIST_ERROR_MSG "\n\rLIST ERROR\n\r"
-#define ADDING_CARD_MSG "\n\rAdding card to list\n\r"
-#define NAME_ERROR_MSG "\n\rUSER NAME ERROR\n\r"
-#define UNABLE_CARD_MSG "Unable to select card.\n\r"
+#define REMOV_LIKEDL_MSG "\" from the list\r\n"
+#define REMOV_LIKEDL_MSG "\" from the list\r\n"
+#define NO_USER_MSG "No user with such name was found\r\n"
+#define LIST_ERROR_MSG "\r\nCARD ADDING MEMORY ERROR: If cardlist is not empty, then remove any card. Otherwise check free memory size.\r\n"
+#define ADDING_CARD_MSG "\r\nAdding card to list\r\n"
+#define NAME_ERROR_MSG "\r\nUSER NAME ERROR\r\n"
+#define UNABLE_CARD_MSG "Unable to select card.\r\n"
+#define EMTY_LIST_MSG "Card list is empty\r\n"
 
-#define CARD_SEL_MSG "Card selected!\n\r"
-#define UID_SIZE_MSG "UID size: 0x%02X\n\r"
-#define UID_SAK_MSG "UID sak: 0x%02X\n\r"
+#define CARD_SEL_MSG "Card selected!\r\n"
+#define UID_SIZE_MSG "UID size: 0x%02X\r\n"
+#define UID_SAK_MSG "UID sak: 0x%02X\r\n"
 
-#define USER_MSG "\n\rUser:"
+#define USER_MSG "\r\nUser:"
 
-#define CMD_NOT_MSG "Command not implemented.\n\r Use <help> to get help.\n\r"
-#define FEW_OR_MANY_MSG "To few or to many arguments for this command\n\rUse <help>\n\r"
+#define CMD_NOT_MSG "Command not implemented.\r\n Use <help> to get help.\r\n"
+#define FEW_OR_MANY_MSG "To few or to many arguments for this command\r\nUse <help>\r\n"
 
 #define HEAD_MSG "Heap statistics\r\n"
 #define USED_MSG "Used: %d\r\n"
@@ -82,13 +84,13 @@ Arrow key's and del do not work currently.\r\n"
 #define ASCII_CMD "ascii"
 #define ASCII_HELP "print ASCII tables"
 #define MONTH_CMD "month"
-#define MONTH_HELP "Find matching month from lookup list. Usage: month <string>"
+#define MONTH_HELP "Find matching month from lookup list. Usage: <month>"
 #define RIF_READ_CMD "read"
 #define RIF_READ_HELP "Print RFID data and user(if it has one)"
 #define RIF_ADD_CMD "add"
-#define RIF_ADD_HELP "Add card to LL and give it a user. Usage: add username <string>(MAX length 15 char)"
+#define RIF_ADD_HELP "Add card to list. Hold card near by RFID. Usage: add <card holder name>"
 #define RIF_REMOVE_CMD "remove"
-#define RIF_REMOVE_HELP "Remove user/card from LL. Usage: remove username <string>"
+#define RIF_REMOVE_HELP "Remove user and card from list. Usage: remove <card holder name>"
 #define RIF_PRINT_CMD "print"
 #define RIF_PRINT_HELP "Print all used cards"
 #define RIF_MEM_CMD "mem"

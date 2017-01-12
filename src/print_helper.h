@@ -1,4 +1,4 @@
-/*   This is Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
+/*   This file is part of Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
  *
  *   Copyright (C) 2017 Taavi Tilk
  *

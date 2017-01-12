@@ -1,4 +1,4 @@
-/*   This is Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
+/*   This file is part of Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
  *
  *   Copyright (C) 2017 Taavi Tilk
  *
@@ -22,7 +22,7 @@
 
 void print_ascii_tbl ()
 {
-    uart0_puts_p(PSTR("\n\r"));
+    uart0_puts_p(PSTR("\r\n"));
     char buffer[8];
 
     for (char c = ' '; c <= '~'; c++) {
@@ -33,7 +33,7 @@ void print_ascii_tbl ()
         uart0_puts(buffer);
     }
 
-    uart0_puts_p(PSTR("\n\r"));
+    uart0_puts_p(PSTR("\r\n"));
 }
 
 

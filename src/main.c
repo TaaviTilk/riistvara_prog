@@ -1,4 +1,4 @@
-﻿/*   This is Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
+﻿/*   This file is part of Estionian ITC Course I237, where we use RFID on Arduino Mega 2560
  *
  *   Copyright (C) 2017 Taavi Tilk
  *
@@ -44,6 +44,7 @@ microrl_t *prl = &rl;
 // see on uardi initsaliseerimine
 static inline void init_uart(void)
 {
+    DDRA |= _BV(DDA1);
     DDRA |= _BV(DDA3);
     uart0_init(UART_BAUD_SELECT(BAUD, F_CPU));
     uart3_init(UART_BAUD_SELECT(BAUD, F_CPU));
@@ -96,9 +97,9 @@ static inline void init_counter(void)
 // see on nime printimine
 static inline void user(void)
 {
-    uart3_puts_p(PSTR(STUD_NAME"\n\r"));
-    uart3_puts_p(PSTR(VER_FW "\n\r"));
-    uart3_puts_p(PSTR(VER_LIBC " " VER_GCC "\n\r"));
+    uart3_puts_p(PSTR(STUD_NAME"\r\n"));
+    uart3_puts_p(PSTR(VER_FW "\r\n"));
+    uart3_puts_p(PSTR(VER_LIBC " " VER_GCC "\r\n"));
 }
 
 
