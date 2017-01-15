@@ -242,7 +242,7 @@ void cli_rfid_add(const char *const *argv)
                     free(new_head->user);
                     free(new_head);
                 } else {
-                    new_head->user = user;
+                    new_head->user = strdup(argv[1]);
                     new_head->next = head_ptr;
                     head_ptr = new_head;
                     free(user);

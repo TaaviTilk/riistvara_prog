@@ -199,11 +199,11 @@ void main (void)
 {
     init_uart();
     init_lcd();
-    init_rl();
-    init_rfid_reader();
     init_counter();
+    init_rfid_reader();
     sei();
     init_hello();
+    init_rl();
     user();
     lcd_print();
 
