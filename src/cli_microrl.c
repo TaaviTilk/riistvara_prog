@@ -140,7 +140,7 @@ bool check_user_name(const char *argv)
     card_t *current = head_ptr;
     char buffer[30] = "";
 
-    if (strlen(argv) > 10000) {
+    if (strlen(argv) > 10) {
         uart0_puts_p(PSTR(USER_TO_BIG_MSG));
         return 0;
     }
@@ -242,7 +242,7 @@ void cli_rfid_add(const char *const *argv)
                     free(new_head->user);
                     free(new_head);
                 } else {
-                    new_head->user = strdup(argv[1]);
+                    new_head->user = user;
                     new_head->next = head_ptr;
                     head_ptr = new_head;
                     free(user);
@@ -329,8 +329,8 @@ void cli_print_ver(const char *const *argv)
 {
     (void) argv;
     uart0_puts_p(PSTR("\r\n"));
-    uart0_puts_p(PSTR(VER_FW "\r\n"));
-    uart0_puts_p(PSTR(VER_LIBC " " VER_GCC "\r\n"));
+    uart0_puts_p(PSTR(VER_FW"\r\n"));
+    uart0_puts_p(PSTR(VER_LIBC" "VER_GCC"\r\n"));
 }
 
 

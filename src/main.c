@@ -66,7 +66,7 @@ static inline void init_hello(void)
     uart0_puts_p(PSTR(HELLO));
 }
 
-// see on  microrl initsaliseerimine
+// see on microrl initsaliseerimine
 static inline void init_rl(void)
 {
     microrl_init (prl, uart0_puts);
@@ -86,11 +86,13 @@ static inline void init_rfid_reader(void)
 // see on counteri initsaliseerimine
 static inline void init_counter(void)
 {
-    TCCR5A = 0; // Clear control register A
-    TCCR5B = 0; // Clear control register B
-    TCCR5B |= _BV(WGM52) | _BV(CS52); // CTC and fCPU/256
-    OCR5A = 62549; // 1 s
-    TIMSK5 |= _BV(OCIE5A); // Output Compare A Match Interrupt Enable
+    time = 0;
+    TCCR1A = 0; // Clear control register A
+    TCCR1B = 0; // Clear control register B
+    TCCR1B |= _BV(WGM12); 
+    TCCR1B |= _BV(CS12); // CTC and fCPU/256
+    OCR1A = 62549; // 1 s
+    TIMSK1 |= _BV(OCIE1A); // Output Compare A Match Interrupt Enable
 }
 
 
@@ -98,8 +100,8 @@ static inline void init_counter(void)
 static inline void user(void)
 {
     uart3_puts_p(PSTR(STUD_NAME"\r\n"));
-    uart3_puts_p(PSTR(VER_FW "\r\n"));
-    uart3_puts_p(PSTR(VER_LIBC " " VER_GCC "\r\n"));
+    uart3_puts_p(PSTR(VER_FW"\r\n"));
+    uart3_puts_p(PSTR(VER_LIBC" "VER_GCC"\r\n"));
 }
 
 
@@ -123,15 +125,16 @@ static inline void led_on_off(void)
 static inline void heartbeat()
 {
     static uint32_t last_time;
-    uint32_t cur_time;
     char buffer[15];
+    uint32_t cur_time;
+    
     ATOMIC_BLOCK(ATOMIC_FORCEON) {
         cur_time = time;
     }
 
     if ((last_time - cur_time) > 0) {
         led_on_off();
-        sprintf_P(buffer, PSTR(UPTIME) , cur_time);
+        sprintf_P(buffer, PSTR(UPTIME), cur_time);
         uart3_puts(buffer);
     }
 
@@ -206,14 +209,14 @@ void main (void)
 
     while (1) {
         microrl_insert_char(prl, cli_get_char());
-        read_rfid();
         heartbeat();
+        read_rfid();
     }
 }
 
 
 // timer
-ISR(TIMER5_COMPA_vect)
+ISR(TIMER1_COMPA_vect)
 {
     time++;
 }
