@@ -89,7 +89,7 @@ static inline void init_counter(void)
     time = 0;
     TCCR1A = 0; // Clear control register A
     TCCR1B = 0; // Clear control register B
-    TCCR1B |= _BV(WGM12); 
+    TCCR1B |= _BV(WGM12);
     TCCR1B |= _BV(CS12); // CTC and fCPU/256
     OCR1A = 62549; // 1 s
     TIMSK1 |= _BV(OCIE1A); // Output Compare A Match Interrupt Enable
@@ -127,7 +127,6 @@ static inline void heartbeat()
     static uint32_t last_time;
     char buffer[15];
     uint32_t cur_time;
-    
     ATOMIC_BLOCK(ATOMIC_FORCEON) {
         cur_time = time;
     }
@@ -199,11 +198,11 @@ void main (void)
 {
     init_uart();
     init_lcd();
-    init_rl();
-    init_rfid_reader();
     init_counter();
+    init_rfid_reader();
     sei();
     init_hello();
+    init_rl();
     user();
     lcd_print();
 

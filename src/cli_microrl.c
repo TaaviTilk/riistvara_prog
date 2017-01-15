@@ -175,15 +175,15 @@ void cli_rfid_remove(const char *const *argv)
     card_t *previous_user = NULL;
     char buffer[30] = "";
 
-    if(current != NULL){
+    if (current != NULL) {
         while (current != NULL) {
             if (!strcmp(current->user, argv[1])) {
                 sprintf_P(buffer, PSTR(REMOV_USER_AND_ID_MSG), current->user);
                 uart0_puts(buffer);
 
                 for (byte i = 0; i < current->id_size; i++) {
-                 sprintf_P(buffer, PSTR("%02X"), current->u_id[i]);
-                  uart0_puts(buffer);
+                    sprintf_P(buffer, PSTR("%02X"), current->u_id[i]);
+                    uart0_puts(buffer);
                 }
 
                 sprintf_P(buffer, PSTR(REMOV_LIKEDL_MSG));
@@ -202,7 +202,7 @@ void cli_rfid_remove(const char *const *argv)
             previous_user = current;
             current = current->next;
         }
-    }else {
+    } else {
         sprintf_P(buffer, PSTR(NO_USER_MSG));
         uart0_puts(buffer);
     }
@@ -235,14 +235,14 @@ void cli_rfid_add(const char *const *argv)
                     new_head->u_id[i] = uid.uidByte[i];
                 }
 
-                char *user = malloc(sizeof(argv[1])+1);
-                
+                char *user = malloc(sizeof(argv[1]) + 1);
+
                 if (user == NULL) {
                     uart0_puts_p(PSTR(NAME_ERROR_MSG));
                     free(new_head->user);
                     free(new_head);
                 } else {
-                    new_head->user = user;
+                    new_head->user = strdup(argv[1]);
                     new_head->next = head_ptr;
                     head_ptr = new_head;
                     free(user);
@@ -266,24 +266,24 @@ void cli_rfid_print(void)
     card_t *current = head_ptr;
     uart0_puts_p(PSTR("\r\n"));
 
-    if(current != NULL){
-    while (current != NULL) {
-        n++;
-        sprintf_P(buffer, PSTR("%i. "), n);
-        uart0_puts(buffer);
-
-        for (byte i = 0; i < current->id_size; i++) {
-            sprintf_P(buffer, PSTR("%02X"), current->u_id[i]);
+    if (current != NULL) {
+        while (current != NULL) {
+            n++;
+            sprintf_P(buffer, PSTR("%i. "), n);
             uart0_puts(buffer);
-        }
 
-        uart0_puts(" ");
-        uart0_puts(current->user);
-        current = current->next;
-        uart0_puts_p(PSTR("\r\n"));
-    }
-    }else{
-    uart0_puts_p(PSTR(EMTY_LIST_MSG));
+            for (byte i = 0; i < current->id_size; i++) {
+                sprintf_P(buffer, PSTR("%02X"), current->u_id[i]);
+                uart0_puts(buffer);
+            }
+
+            uart0_puts(" ");
+            uart0_puts(current->user);
+            current = current->next;
+            uart0_puts_p(PSTR("\r\n"));
+        }
+    } else {
+        uart0_puts_p(PSTR(EMTY_LIST_MSG));
     }
 }
 
